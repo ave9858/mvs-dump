@@ -66,6 +66,6 @@ The resulting database can be used with *SQlite3* or browsed in any SQLite-compa
 ## Disclaimer
 Nothing stored in the databases or done by this tool infringes Microsoft copyright.
 
-Files acquired through Visual Studio subscriber benefits are the sole property of Microsoft Corporation and their supplier. These files **are not** available for download by this tool or the databases in any way, shape or form.
+Files acquired through Visual Studio subscriber benefits are the sole property of Microsoft Corporation and their suppliers. These files **are not** available for download by use of this tool or the databases in any way.
 
 The purpose of this repository and the databases is to provide users with the means of verifying genuine Microsoft software in a transparent manner.

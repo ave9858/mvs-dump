@@ -13,8 +13,8 @@ def parse_file(file_entry: dict) -> tuple[int, str, str, str, str, int, int]:
         file_entry['fileDescription'],
         file_entry['languageCode'],
         file_entry['bootstrapperDownloadLink'],
-        file_entry['sha1']   if file_entry['sha1']   and not file_entry['bootstrapperDownloadLink'] else None,
-        file_entry['sha256'] if file_entry['sha256'] and not file_entry['bootstrapperDownloadLink'] else None 
+        file_entry['sha1']   if 'sha1' in file_entry   and file_entry['sha1']    and not file_entry['bootstrapperDownloadLink'] else None,
+        file_entry['sha256'] if 'sha256' in file_entry and  file_entry['sha256'] and not file_entry['bootstrapperDownloadLink'] else None
     )
 
 def parse_product(product_entry: dict) -> tuple[int, str, list]:

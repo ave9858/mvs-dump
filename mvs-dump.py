@@ -37,9 +37,8 @@ def db_add_product(cursor: sqlite3.Cursor, product: tuple[int, str, list]):
     ''', product[:2])
 
     # Insert all files for products
-    # (this will shit the bed on identical files, this is intentional)
     cursor.executemany('''
-    insert into files (product, id, name, desc, langc, bootstrap, sha1, sha2)
+    insert or ignore into files (product, id, name, desc, langc, bootstrap, sha1, sha2)
     values (?, ?, ?, ?, ?, ?, ?, ?)
     ''', ((product[0], *file) for file in product[2]))
 
@@ -66,3 +65,4 @@ if __name__ == '__main__':
         db_add_product(db.cursor(), prod)
     db.commit()
     db.close()
+

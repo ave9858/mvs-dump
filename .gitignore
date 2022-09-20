@@ -1,2 +1,4 @@
 __pycache__
 mvs.cookie
+*.db
+*.db.gz

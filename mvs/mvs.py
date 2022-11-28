@@ -23,9 +23,8 @@ class MVS:
         self.cookie = cookie
         if not self._cookie_check_expiry():
             raise Exception('cookie invalid')
-        # TODO initialize user data from other parts of the cookie.
 
-    def _ensure_cookie_validity(f):
+    def validate_cookie(f):
         # Excuse this retardation, 'args[0]' is simply 'self'
         def checked(*args, **kwargs):
             if args[0]._cookie_check_expiry():
@@ -34,7 +33,7 @@ class MVS:
                 raise Exception('Cookie expired')
         return checked
 
-    @_ensure_cookie_validity
+    @validate_cookie
     def _get_products(self, products: list[int]) -> requests.Response:
         """Request a product list JSON from MVS by IDs"""
         REQUEST_URL = 'https://my.visualstudio.com/_apis/AzureSearch/GetfilesForListOfProducts?upn=&mkt='
@@ -55,7 +54,7 @@ class MVS:
             raise Exception(f'Error response {response.status_code}')
         return response
     
-    @_ensure_cookie_validity
+    @validate_cookie
     def _get_link(self, filename: str) -> requests.Response:
         """Return a file link JSON for a given filename"""
         REQUEST_URL = 'https://my.visualstudio.com/_apis/Download/GetLink'

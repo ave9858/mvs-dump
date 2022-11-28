@@ -25,7 +25,7 @@ function printinfo  { print -P "[%F{white}%BInfo%b%f] $1" }
 
 cp $OLD $NEW
 printinfo 'Updating staging database..'
-./mvs-dump.py 12000 $NEW || {
+./mvs-dump.py $NEW 12000 || {
     printerror 'Update failed.. Exiting.'
     exit 2
 }

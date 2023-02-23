@@ -32,9 +32,6 @@ printinfo 'Updating staging database..'
 
 # {{{ Print products
 {
-    ONE=``
-    TWO=``
-
     printinfo 'Printing product diff..'
     diff -c =(sqlite3 $OLD 'select * from products;') =(sqlite3 $NEW 'select * from products;')
 }
@@ -45,9 +42,6 @@ read -sk1
 
 # {{{ Print files
 {
-    ONE=`sqlite3 $OLD 'select * from files;'`
-    TWO=`sqlite3 $NEW 'select * from files;'`
-
     printinfo 'Printing file diff..'
     diff -c =(sqlite3 $OLD 'select * from files;') =(sqlite3 $NEW 'select * from files;')
 }

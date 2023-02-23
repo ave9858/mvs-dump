@@ -45,7 +45,6 @@ def db_add_product(cursor: sqlite3.Cursor, product: tuple[int, str, list]):
 if __name__ == '__main__':
 
     import argparse
-    from os.path import isdir
 
     ap = argparse.ArgumentParser(prog='mvs-dump')
     ap.add_argument('file',  help='Destination database file')

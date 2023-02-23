@@ -6,6 +6,8 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support.expected_conditions import url_contains
 
+from secret import get_secret
+
 
 def get_token(email: str, passwd: str) -> str:
 
@@ -39,10 +41,8 @@ def get_token(email: str, passwd: str) -> str:
 
 def main():
 
-    credentials = [x.strip() for x in open('creds.txt').read().splitlines()]
-
     with open('mvs.cookie') as cookie:
-        cookie.write(get_token(*credentials))
+        cookie.write(get_token(get_secret('email'), get_secret('password')))
 
 
 if __name__ == '__main__':

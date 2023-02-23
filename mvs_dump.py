@@ -4,6 +4,7 @@ from functools import reduce
 from mvs.mvs import MVS
 import sqlite3
 from functools import reduce
+from secret import get_secret
 
 
 def reduce_file_list(files: list[dict]) -> list[dict]:
@@ -81,22 +82,21 @@ if __name__ == '__main__':
     import argparse
 
     ap = argparse.ArgumentParser(prog='mvs-dump')
-    ap.add_argument('file',  help='Destination database file')
+    ap.add_argument('file', help='Destination database file')
     ap.add_argument(
         'count', help='Number of consecutive IDs to query for', type=int)
-    ap.add_argument('-c', type=argparse.FileType('r'),
-                    dest='cookie', help='Cookie file', default='mvs.cookie')
 
     args = ap.parse_args()
 
-    mvs = MVS(args.cookie.read().strip())
+    mvs = MVS(get_secret('cookie'))
     db = sqlite3.connect(args.file)
 
     mvs_response = mvs.get_products(list(range(1, args.count + 1)))
     products = map(parse_product, list(mvs_response.values()))
 
+    c = db.cursor()
     for p in products:
-        db_add_product(db.cursor(), p)
+        db_add_product(c, p)
 
     db.commit()
     db.close()

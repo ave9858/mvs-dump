@@ -114,11 +114,10 @@ def main(db_path: str, count: int) -> None:
 
     # new_ids can only be bigger
     if old_ids == new_ids:
-        print('No new stuff detected.')
+        print('[I] Nothing new detected.')
         return
 
-    print('New stuff detected!')
-    publish_update(db_path, list(new_ids.difference(old_ids)))
+    print('[I] Something new detected.')
 
 
 if __name__ == '__main__':

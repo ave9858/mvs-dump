@@ -89,7 +89,7 @@ def publish_update(db_path: str, new_file_ids: list) -> None:
     )
 
 
-def main(db_path: str, count: int) -> None:
+def main(db_path: str, count: int, publish: bool) -> None:
 
     db = sqlite3.connect(db_path)
 
@@ -118,6 +118,8 @@ def main(db_path: str, count: int) -> None:
         return
 
     print('[I] Something new detected.')
+    if publish:
+        publish_update(db_path, list(new_ids.difference(old_ids)))
 
 
 if __name__ == '__main__':
@@ -125,8 +127,9 @@ if __name__ == '__main__':
 
     p = argparse.ArgumentParser()
     p.add_argument('database', type=str)
+    p.add_argument('--publish', action=argparse.BooleanOptionalAction, default=False)
     p.add_argument('count', type=int, default=15000, nargs='?')
 
     args = p.parse_args()
 
-    main(args.database, args.count)
+    main(args.database, args.count, args.publish)

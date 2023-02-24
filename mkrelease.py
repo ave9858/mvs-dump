@@ -95,7 +95,7 @@ def main(db_path: str, count: int) -> None:
 
     # check old file ids
     old_ids = set([e[0] for e in db.execute(
-        'select id from files').fetchall()])
+        'SELECT id FROM files').fetchall()])
 
     mvs_session = get_session()
 
@@ -107,7 +107,7 @@ def main(db_path: str, count: int) -> None:
 
     # check updated file ids
     new_ids = set([e[0] for e in db.execute(
-        'select id from files').fetchall()])
+        'SELECT id FROM files').fetchall()])
 
     db.commit()
     db.close()

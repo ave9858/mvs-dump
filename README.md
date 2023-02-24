@@ -40,7 +40,7 @@ CREATE TABLE files (
 ```
 ## Use
 
-Normal use requires the user to be a Visual Studio subscriber with access to relevant subscriber benefits. The user is authorized with Microsoft using a genuine authentication cookie.
+Normal use requires the user to be a Visual Studio subscriber with access to relevant subscriber benefits. The user is authorized with Microsoft servers using a genuine authentication cookie. You can get the cookie from your MS account credentials by putting them in `secrets/email` and `secrets/password` files and using `get_cookie.py`.
 
 The first step is to generate the skeleton for the database with `mkdb.py`:
 
@@ -48,16 +48,11 @@ The first step is to generate the skeleton for the database with `mkdb.py`:
 python mkdb.py mvs.db
 ```
 
-Next, one needs to populate the database with MVS data:
+Next, populate the database with MVS data:
 
 ```sh
-# Assuming the cookie is in "mvs.cookie"
-python mvs-dump.py <number of products> <database file>
-
-# OR
-
-# This will INTERACTIVELY prompt the user for the product count, database file and raw cookie
-python mvs-dump.py
+python mvs_dump.py mvs.db <count>
+# count - Number of consecutive IDs to query for (set to ~10000)
 ```
 
 The resulting database can be used with *SQlite3* or browsed in any SQLite-compatible program.

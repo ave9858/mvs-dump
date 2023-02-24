@@ -26,7 +26,7 @@ def get_session() -> MVS:
         return MVS(token)
 
 
-def publish_update(db_path: str, new_file_ids: list) -> None:
+def publish_update(db_path: str, changed_products: list[tuple[int, str]]) -> None:
     """Publishes an update on GitHub"""
 
     import gzip
@@ -42,25 +42,14 @@ def publish_update(db_path: str, new_file_ids: list) -> None:
 
     stat_db = os.stat(db_path)
 
-    db = sqlite3.connect(db_path)
-    r = db.execute(f'''
-    SELECT id, name
-    FROM products
-    WHERE id IN (
-        SELECT DISTINCT product
-        FROM files
-        WHERE id IN ({','.join(['?']*len(new_file_ids))})
-    )
-    ''', new_file_ids)
-
     # Create release
     date = datetime.now()
     tag = f'{date.year:04}-{date.month:02}-{date.day:02}_{date.hour:02}'
 
     body = "New files for these products:\n```"
-    for x in r:
-        body += f'\n{x[0]}|{x[1]}'
-    body += f'\n```\nUncompressed size: `{stat_db.st_size // 1024**2} MiB ({stat_db.st_size // 1024} KiB)`'
+    for product in changed_products:
+        body += f'\n{product[0]}|{product[1]}'
+    body += f'\n```\nUncompressed size: `{(stat_db.st_size + 512*1024) // 1024**2} MiB ({stat_db.st_size // 1024} KiB)`'
 
     pub_req = requests.post(
         'https://api.github.com/repos/awuctl/mvs-dump/releases',
@@ -89,37 +78,80 @@ def publish_update(db_path: str, new_file_ids: list) -> None:
     )
 
 
-def main(db_path: str, count: int, publish: bool) -> None:
+def get_file_ids(db: sqlite3.Connection) -> set:
+    """Returns the set of file IDs present in the database"""
+    with db:
+        return set([e[0] for e in db.execute('SELECT id FROM files').fetchall()])
 
-    db = sqlite3.connect(db_path)
 
-    # check old file ids
-    old_ids = set([e[0] for e in db.execute(
-        'SELECT id FROM files').fetchall()])
+def update_database(db: sqlite3.Connection, count: int) -> None:
+    """Updates a given database with a query up to the [count] product ID"""
 
     mvs_session = get_session()
 
     response = mvs_session.get_products(list(range(1, count + 1)))
     response = list(response.values())
 
-    for product in [parse_product(x) for x in response]:
-        db_add_product(db.cursor(), product)
+    with db:
+        for product in [parse_product(x) for x in response]:
+            db_add_product(db, product)
 
-    # check updated file ids
-    new_ids = set([e[0] for e in db.execute(
-        'SELECT id FROM files').fetchall()])
 
-    db.commit()
-    db.close()
+def get_product_info(db: sqlite3.Connection, id: int) -> tuple[int, str]:
 
-    # new_ids can only be bigger
+    product_name: str
+    with db:
+        product_name = db.execute(
+            'SELECT name FROM products WHERE id = ?', id).fetchone()[0]
+
+    return id, product_name
+
+
+def get_products_for_file_ids(db: sqlite3.Connection, ids: list[int]) -> list[tuple[int, str]]:
+    """Given a list of file IDs, return the list of products (tuple(id, name)) they belong to"""
+
+    products: list[tuple[int, str]]
+    with db:
+        products = db.execute(f'''
+        SELECT id, name
+        FROM products
+        WHERE id IN (
+            SELECT DISTINCT product
+            FROM files
+            WHERE id IN (
+                { ','.join(['?'] * len(ids)) }
+            )
+        )''', ids).fetchall()
+
+    return products
+
+
+def main(db_path: str, count: int, publish: bool) -> None:
+
+    db = sqlite3.connect(db_path)
+
+    old_ids = get_file_ids(db)
+    update_database(db, count)
+    new_ids = get_file_ids(db)
+
     if old_ids == new_ids:
-        print('[I] Nothing new detected.')
+        print('[I] Nothing changed.')
         return
 
     print('[I] Something new detected.')
+    changed_products = get_products_for_file_ids(
+        db, list(new_ids.difference(old_ids)))
+
     if publish:
-        publish_update(db_path, list(new_ids.difference(old_ids)))
+        publish_update(db_path, changed_products)
+    else:
+        # If not publishing, print what changed.
+        print()
+        print('[S] Changes found in products:')
+        for p in changed_products:
+            print(f'[S] {p[0]:5} {p[1]}')
+
+    db.close()
 
 
 if __name__ == '__main__':
@@ -127,7 +159,8 @@ if __name__ == '__main__':
 
     p = argparse.ArgumentParser()
     p.add_argument('database', type=str)
-    p.add_argument('--publish', action=argparse.BooleanOptionalAction, default=False)
+    p.add_argument(
+        '--publish', action=argparse.BooleanOptionalAction, default=False)
     p.add_argument('count', type=int, default=15000, nargs='?')
 
     args = p.parse_args()

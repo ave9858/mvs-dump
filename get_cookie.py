@@ -41,7 +41,7 @@ def get_token(email: str, passwd: str) -> str:
 
 def main():
 
-    with open('mvs.cookie') as cookie:
+    with open('mvs.cookie', 'w') as cookie:
         cookie.write(get_token(get_secret('email'), get_secret('password')))
 
 

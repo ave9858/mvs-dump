@@ -5,5 +5,5 @@ def get_secret(name: str) -> str:
         return secret.read().strip()
 
 def set_secret(name: str, val: str) -> None:
-    with open('secrets/' + name) as secret:
+    with open('secrets/' + name, 'w') as secret:
         secret.write(val)

@@ -12,12 +12,12 @@ def get_session() -> MVS:
     from get_cookie import get_token
 
     try:
-        print('Trying saved cookie..')
+        print('Using saved cookie..')
 
         return MVS(get_secret('cookie'))
 
     except Exception as e:
-        print('Getting new cookie..')
+        print('Getting new cookie because:', e)
         token = get_token(get_secret('email'), get_secret('password'))
 
         # overwrite stale cookie with new one
@@ -156,6 +156,7 @@ def main(db_path: str, count: int, publish: bool) -> None:
 
 if __name__ == '__main__':
     import argparse
+    import os.path as path
 
     p = argparse.ArgumentParser()
     p.add_argument('database', type=str)
@@ -165,4 +166,4 @@ if __name__ == '__main__':
 
     args = p.parse_args()
 
-    main(args.database, args.count, args.publish)
+    main(path.basename(path.realpath(args.database)), args.count, args.publish)

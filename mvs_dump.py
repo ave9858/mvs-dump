@@ -5,6 +5,7 @@ from mvs.mvs import MVS
 import sqlite3
 from functools import reduce
 from secret import get_secret
+from get_cookie import get_token
 
 
 def reduce_file_list(files: list[dict]) -> list[dict]:
@@ -88,7 +89,15 @@ if __name__ == '__main__':
 
     args = ap.parse_args()
 
-    mvs = MVS(get_secret('cookie'))
+    try:
+        mvs = MVS(get_secret('cookie'))
+    except:
+        try:
+            mvs = MVS(get_token(get_secret('email'), get_secret('password')))
+        except:
+            print("MVS does not work, invalid credentials or no internet access.")
+            exit(1)
+    
     db = sqlite3.connect(args.file)
 
     mvs_response = mvs.get_products(list(range(1, args.count + 1)))

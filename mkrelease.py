@@ -6,7 +6,6 @@ import os
 import sqlite3
 from datetime import datetime
 from os import path
-import json
 
 import requests
 
@@ -144,9 +143,9 @@ def check_new_products(ids: set[int], mvs_session: MVS) -> list[dict]:
 def get_all_data(max_id: int, mvs_session: MVS) -> list[dict]:
     data: list[dict] = []
 
-    IDs = list(range(max_id + 1))
+    ids = list(range(max_id + 1))
 
-    chunks = [IDs[i : i + BATCH_SIZE] for i in range(0, len(IDs), BATCH_SIZE)]
+    chunks = [ids[i : i + BATCH_SIZE] for i in range(0, len(ids), BATCH_SIZE)]
 
     for chunk in chunks:
         data += mvs_session.get_products(chunk).values()
@@ -181,9 +180,7 @@ def _main() -> None:
     mvs_session = get_session()
 
     if new_products := check_new_products(old_product_ids, mvs_session):
-        print(json.dumps(new_products))
         new_products += get_all_data(max(old_product_ids), mvs_session)
-        print(json.dumps(new_products))
         id_dict = get_all_products(db) | get_new_product_names(mvs_session)
         for product in new_products:
             product["fileDetailModels"] = reduce_file_list(product["fileDetailModels"])

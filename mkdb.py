@@ -1,29 +1,32 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
+"""Running this will initialize an MVS database at file arg1"""
 
 import sqlite3
 
-if __name__ == '__main__':
-    """Running this will initialize an MVS database at file arg1"""
+if __name__ == "__main__":
     import sys
-    
+
     if len(sys.argv) < 2:
-        print('Usage: mkdb.py <file>')
+        print("Usage: mkdb.py <file>")
         exit(1)
 
     con = sqlite3.connect(sys.argv[1])
     cur = con.cursor()
 
-    cur.execute('pragma case_sensitive_like = false;')
-    cur.execute('pragma count_changes = true;')
+    cur.execute("pragma case_sensitive_like = false;")
+    cur.execute("pragma count_changes = true;")
 
-    cur.execute('''
+    cur.execute(
+        """
     create table products (
         id        int      primary key,
         name      varchar
     );
-    ''')
+    """
+    )
 
-    cur.execute('''
+    cur.execute(
+        """
     create table files (
         id        int,
         product   int,
@@ -37,7 +40,8 @@ if __name__ == '__main__':
         foreign key(product) references products(id),
         primary key(id, product)
     );
-    ''')
+    """
+    )
 
     con.commit()
     con.close()
